@@ -74,13 +74,25 @@ Response:
 
 ## Docker Usage
 
-### Build Image
+### Using Pre-built Image (Recommended)
 ```bash
-docker build -t lowerthird-microservice .
+# Pull latest image from GitHub Container Registry
+docker pull ghcr.io/40docs/lowerthird-microservice:latest
+
+# Run container
+docker run -d \
+  -p 5000:5000 \
+  -v $(pwd)/outputs:/app/outputs \
+  --name lowerthird \
+  ghcr.io/40docs/lowerthird-microservice:latest
 ```
 
-### Run Container
+### Build Image Locally
 ```bash
+# Build from source
+docker build -t lowerthird-microservice .
+
+# Run local build
 docker run -d \
   -p 5000:5000 \
   -v $(pwd)/outputs:/app/outputs \
@@ -105,6 +117,44 @@ curl -X POST http://localhost:5000/create-lowerthird \
   }'
 ```
 
+## Deployment
+
+### GitHub Container Registry
+This microservice is automatically built and published to GitHub Container Registry:
+
+```bash
+# Latest stable release
+docker pull ghcr.io/40docs/lowerthird-microservice:latest
+
+# Specific version
+docker pull ghcr.io/40docs/lowerthird-microservice:v1.0.0
+```
+
+### Container Orchestration
+```bash
+# Docker with health checks
+docker run -d \
+  -p 5000:5000 \
+  -v /path/to/outputs:/app/outputs \
+  --health-cmd="curl -f http://localhost:5000/health || exit 1" \
+  --health-interval=30s \
+  --health-timeout=10s \
+  --health-retries=3 \
+  --restart=unless-stopped \
+  --name lowerthird \
+  ghcr.io/40docs/lowerthird-microservice:latest
+```
+
+### Integration with 40docs Ecosystem
+This microservice can be integrated into video-as-code workflows:
+
+```bash
+# Example: Generate lowerthird, then process with video-producer-microservice
+curl -X POST http://localhost:5000/create-lowerthird \
+  -H "Content-Type: application/json" \
+  -d '{"main_title":"My Video","subtitle":"Professional Content"}'
+```
+
 ## Development
 
 ### Local Setup
@@ -123,6 +173,13 @@ lowerthird-microservice/
 └── README.md                 # Documentation
 ```
 
+## CI/CD Pipeline
+
+This microservice uses GitHub Actions for automated builds:
+- **Trigger**: Push to main branch or manual workflow dispatch
+- **Registry**: Automatically published to `ghcr.io/40docs/lowerthird-microservice:latest`
+- **Integration**: Built-in container workflow following 40docs standards
+
 ## Technical Specifications
 
 - **Video Output**: 1920x1080 HD, 30fps, MP4 format
@@ -130,6 +187,8 @@ lowerthird-microservice/
 - **Fonts**: DejaVu Sans (fallback to default)
 - **Processing**: OpenCV + PIL for video generation
 - **Architecture**: Follows 40docs microservice patterns
+- **Container Registry**: GitHub Container Registry (ghcr.io)
+- **Automatic Builds**: GitHub Actions container.yml workflow
 
 ## Error Handling
 
