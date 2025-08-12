@@ -79,7 +79,7 @@ Response:
 # Pull latest image from GitHub Container Registry
 docker pull ghcr.io/40docs/lowerthird-microservice:latest
 
-# Run container
+# Run container with volume mount for output videos
 docker run -d \
   -p 5000:5000 \
   -v $(pwd)/outputs:/app/outputs \
@@ -87,12 +87,14 @@ docker run -d \
   ghcr.io/40docs/lowerthird-microservice:latest
 ```
 
+**Note:** The `-v $(pwd)/outputs:/app/outputs` mount allows you to access generated videos in your local `./outputs/` directory for preview and download.
+
 ### Build Image Locally
 ```bash
 # Build from source
 docker build -t lowerthird-microservice .
 
-# Run local build
+# Run local build with volume mount
 docker run -d \
   -p 5000:5000 \
   -v $(pwd)/outputs:/app/outputs \
@@ -105,7 +107,7 @@ docker run -d \
 # Health check
 curl http://localhost:5000/health
 
-# Generate lowerthird
+# Generate lowerthird (video will be saved to ./outputs/test_video.mp4)
 curl -X POST http://localhost:5000/create-lowerthird \
   -H "Content-Type: application/json" \
   -d '{
@@ -115,6 +117,9 @@ curl -X POST http://localhost:5000/create-lowerthird \
     "duration": 5.0,
     "style": "tech"
   }'
+
+# Check your generated video
+ls -la outputs/test_video.mp4
 ```
 
 ## Deployment
