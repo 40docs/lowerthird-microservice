@@ -4,7 +4,8 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - main  # Trigger on push to main branch
+      - main
+      - master  # Trigger on push to both main and master branches
 
 permissions:
   packages: write
