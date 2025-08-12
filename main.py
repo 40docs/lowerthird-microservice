@@ -87,10 +87,8 @@ def list_styles():
     })
 
 if __name__ == '__main__':
-    # Ensure output directory exists (local fallback for testing)
+    # Ensure output directory exists
     output_dir = os.getenv("OUTPUT_DIR", "/app/outputs")
-    if not os.path.exists(output_dir):
-        output_dir = os.path.join(os.getcwd(), "outputs")
     os.makedirs(output_dir, exist_ok=True)
     
     # Run Flask app
