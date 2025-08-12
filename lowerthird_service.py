@@ -137,35 +137,67 @@ class DataDashRenderer:
         text_color = (*colors["white"], int(255 * alpha))
         shadow_color = (*colors["dark"], int(150 * alpha))
         
-        # Get text dimensions for centering
+        # Create modern intersecting DD logo instead of side-by-side text
+        # Get single D dimensions for positioning
         try:
-            bbox = draw.textbbox((0, 0), text, font=font)
-            text_width = bbox[2] - bbox[0]
-            text_height = bbox[3] - bbox[1]
+            single_d_bbox = draw.textbbox((0, 0), "D", font=font)
+            d_width = single_d_bbox[2] - single_d_bbox[0]
+            d_height = single_d_bbox[3] - single_d_bbox[1]
         except:
-            # Fallback text sizing if textbbox fails
-            text_width = len(text) * (font_size // 2)
-            text_height = font_size
+            # Fallback sizing
+            d_width = font_size // 2
+            d_height = font_size
         
-        x = (size * 2 - text_width) // 2
-        y = (size - text_height) // 2 - 2  # Slight vertical adjustment
+        # Calculate positions for intersecting D's
+        center_x = size  # Center of the logo
+        center_y = size // 2
         
-        # Draw multiple shadows for depth
-        for offset in [(3, 3), (2, 2), (1, 1)]:
-            shadow_alpha = int(80 * alpha / len([(3, 3), (2, 2), (1, 1)]))
+        # Offset for intersection - first D slightly left and up, second D slightly right and down
+        overlap_offset = int(d_width * 0.3)  # 30% overlap for modern look
+        
+        d1_x = center_x - d_width // 2 - overlap_offset // 2
+        d1_y = center_y - d_height // 2 - 3
+        
+        d2_x = center_x - d_width // 2 + overlap_offset // 2  
+        d2_y = center_y - d_height // 2 + 3
+        
+        # Draw shadows for both D's
+        shadow_offsets = [(3, 3), (2, 2), (1, 1)]
+        for offset in shadow_offsets:
+            shadow_alpha = int(60 * alpha / len(shadow_offsets))
             shadow_col = (*colors["dark"], shadow_alpha)
-            draw.text((x + offset[0], y + offset[1]), text, font=font, fill=shadow_col)
+            # First D shadow
+            draw.text((d1_x + offset[0], d1_y + offset[1]), "D", font=font, fill=shadow_col)
+            # Second D shadow
+            draw.text((d2_x + offset[0], d2_y + offset[1]), "D", font=font, fill=shadow_col)
         
-        # Draw main text with slight glow effect
-        draw.text((x, y), text, font=font, fill=text_color)
-        
-        # Add subtle glow around text
-        glow_color = (*colors["primary"], int(100 * alpha))
+        # Draw glow effects for both D's
+        glow_color = (*colors["primary"], int(80 * alpha))
         for glow_offset in [(-1, -1), (1, -1), (-1, 1), (1, 1)]:
-            draw.text((x + glow_offset[0], y + glow_offset[1]), text, font=font, fill=glow_color)
+            # First D glow
+            draw.text((d1_x + glow_offset[0], d1_y + glow_offset[1]), "D", font=font, fill=glow_color)
+            # Second D glow  
+            draw.text((d2_x + glow_offset[0], d2_y + glow_offset[1]), "D", font=font, fill=glow_color)
         
-        # Redraw main text on top
-        draw.text((x, y), text, font=font, fill=text_color)
+        # Draw the first D with primary color
+        first_d_color = (*colors["white"], int(255 * alpha))
+        draw.text((d1_x, d1_y), "D", font=font, fill=first_d_color)
+        
+        # Draw the second D with accent color for contrast
+        second_d_color = (*colors["accent"], int(240 * alpha))
+        draw.text((d2_x, d2_y), "D", font=font, fill=second_d_color)
+        
+        # Add subtle outline to make intersection more visible
+        outline_color = (*colors["primary"], int(150 * alpha))
+        for outline_offset in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            # Outline for first D
+            draw.text((d1_x + outline_offset[0], d1_y + outline_offset[1]), "D", font=font, fill=outline_color)
+            # Outline for second D
+            draw.text((d2_x + outline_offset[0], d2_y + outline_offset[1]), "D", font=font, fill=outline_color)
+        
+        # Redraw main D's on top for crisp appearance
+        draw.text((d1_x, d1_y), "D", font=font, fill=first_d_color)
+        draw.text((d2_x, d2_y), "D", font=font, fill=second_d_color)
         
         return logo_img
     
