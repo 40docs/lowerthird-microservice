@@ -85,12 +85,12 @@ class DataDashRenderer:
         return gradient
     
     def create_professional_logo(self, size, colors, alpha, text="DD"):
-        """Create a professional logo with gradient background"""
+        """Create a professional DataDash logo with gradient background and prominent DD text"""
         logo_img = Image.new('RGBA', (size * 2, size), (0, 0, 0, 0))
         
         # Create gradient background
         gradient = self.create_gradient(size * 2, size, colors["primary"], colors["secondary"])
-        gradient_alpha = Image.new('L', (size * 2, size), int(200 * alpha))
+        gradient_alpha = Image.new('L', (size * 2, size), int(220 * alpha))
         
         # Convert to RGBA and apply alpha
         gradient_rgba = gradient.convert('RGBA')
@@ -99,34 +99,72 @@ class DataDashRenderer:
         # Create rounded rectangle mask
         mask = Image.new('L', (size * 2, size), 0)
         mask_draw = ImageDraw.Draw(mask)
-        mask_draw.rounded_rectangle([0, 0, size * 2 - 1, size - 1], radius=12, fill=255)
+        mask_draw.rounded_rectangle([0, 0, size * 2 - 1, size - 1], radius=15, fill=255)
         
         # Apply mask to gradient
         gradient_rgba.putalpha(ImageEnhance.Brightness(mask).enhance(alpha))
         logo_img = Image.alpha_composite(logo_img, gradient_rgba)
         
-        # Add text
+        # Add DataDash DD text with multiple font fallbacks
         draw = ImageDraw.Draw(logo_img)
-        try:
-            font_size = int(size * 0.5)
-            font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", font_size)
-        except:
-            font = ImageFont.load_default()
+        font_size = int(size * 0.6)  # Larger font size for visibility
+        font = None
         
-        # Text with shadow effect
+        # Try multiple font paths for better compatibility
+        font_paths = [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+            "/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf",
+            "/usr/share/fonts/TTF/DejaVuSans-Bold.ttf",
+            "/System/Library/Fonts/Helvetica.ttc"
+        ]
+        
+        for font_path in font_paths:
+            try:
+                font = ImageFont.truetype(font_path, font_size)
+                break
+            except:
+                continue
+        
+        # Fallback to default font if no TrueType fonts found
+        if font is None:
+            try:
+                font = ImageFont.load_default()
+            except:
+                # Ultimate fallback - create text manually
+                return logo_img
+        
+        # Enhanced text colors for better visibility
         text_color = (*colors["white"], int(255 * alpha))
-        shadow_color = (*colors["dark"], int(100 * alpha))
+        shadow_color = (*colors["dark"], int(150 * alpha))
         
         # Get text dimensions for centering
-        bbox = draw.textbbox((0, 0), text, font=font)
-        text_width = bbox[2] - bbox[0]
-        text_height = bbox[3] - bbox[1]
-        x = (size * 2 - text_width) // 2
-        y = (size - text_height) // 2
+        try:
+            bbox = draw.textbbox((0, 0), text, font=font)
+            text_width = bbox[2] - bbox[0]
+            text_height = bbox[3] - bbox[1]
+        except:
+            # Fallback text sizing if textbbox fails
+            text_width = len(text) * (font_size // 2)
+            text_height = font_size
         
-        # Draw shadow
-        draw.text((x + 2, y + 2), text, font=font, fill=shadow_color)
-        # Draw main text
+        x = (size * 2 - text_width) // 2
+        y = (size - text_height) // 2 - 2  # Slight vertical adjustment
+        
+        # Draw multiple shadows for depth
+        for offset in [(3, 3), (2, 2), (1, 1)]:
+            shadow_alpha = int(80 * alpha / len([(3, 3), (2, 2), (1, 1)]))
+            shadow_col = (*colors["dark"], shadow_alpha)
+            draw.text((x + offset[0], y + offset[1]), text, font=font, fill=shadow_col)
+        
+        # Draw main text with slight glow effect
+        draw.text((x, y), text, font=font, fill=text_color)
+        
+        # Add subtle glow around text
+        glow_color = (*colors["primary"], int(100 * alpha))
+        for glow_offset in [(-1, -1), (1, -1), (-1, 1), (1, 1)]:
+            draw.text((x + glow_offset[0], y + glow_offset[1]), text, font=font, fill=glow_color)
+        
+        # Redraw main text on top
         draw.text((x, y), text, font=font, fill=text_color)
         
         return logo_img
