@@ -7,10 +7,13 @@ Follows the 40docs microservice architecture pattern
 
 from flask import Flask, request, jsonify
 import os
+import logging
 from lowerthird_service import generate_lowerthird
 
 app = Flask(__name__)
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 @app.route('/health', methods=['GET'])
 def health():
     """Health check endpoint for container orchestration"""
@@ -72,7 +75,8 @@ def create_lowerthird():
         })
         
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        logging.error("Exception in /create-lowerthird: %s", e, exc_info=True)
+        return jsonify({"error": "An internal error has occurred."}), 500
 
 @app.route('/styles', methods=['GET'])
 def list_styles():
