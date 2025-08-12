@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 DataDash Lowerthird Microservice
-A Flask-based microservice for generating DataDash-branded lowerthird graphics
+A Flask-based microservice for generating DataDash-branded lowerthird graphics for Fortinet/Forticloud community content
 Follows the 40docs microservice architecture pattern
 """
 
@@ -19,15 +19,15 @@ def health():
 @app.route('/create-lowerthird', methods=['POST'])
 def create_lowerthird():
     """
-    Generate a DataDash lowerthird video
+    Generate a DataDash lowerthird video for Fortinet/Forticloud content
     
     Expected JSON payload:
     {
         "main_title": "DataDash",
-        "subtitle": "Short Tech Insights", 
+        "subtitle": "Fortinet Security Insights", 
         "output_name": "my_lowerthird",
         "duration": 4.0,
-        "style": "default"
+        "style": "cloud_blue"
     }
     """
     try:
@@ -39,10 +39,10 @@ def create_lowerthird():
         
         # Extract parameters with defaults
         main_title = data.get('main_title', 'DataDash')
-        subtitle = data.get('subtitle', 'Short Tech Insights')
+        subtitle = data.get('subtitle', 'Fortinet Community Insights')
         output_name = data.get('output_name', 'lowerthird')
         duration = data.get('duration', 4.0)
-        style = data.get('style', 'default')
+        style = data.get('style', 'cloud_blue')
         
         # Validate inputs
         if not isinstance(duration, (int, float)) or duration <= 0:
@@ -76,13 +76,13 @@ def create_lowerthird():
 
 @app.route('/styles', methods=['GET'])
 def list_styles():
-    """List available lowerthird styles"""
+    """List available DataDash lowerthird styles"""
     return jsonify({
         "styles": [
-            "default",
-            "minimal", 
-            "corporate",
-            "tech"
+            "cloud_blue",
+            "secure_red", 
+            "sase_purple",
+            "connectivity_yellow"
         ]
     })
 

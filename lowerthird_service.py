@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 DataDash Lowerthird Generation Service
-Core video processing logic adapted from our eyebrow work
+Professional lowerthird graphics for DataDash community content about Fortinet/Forticloud
+Uses Fortinet-inspired colors: secure red, cloud blue, sase purple, connectivity yellow
 """
 
 import cv2
@@ -17,43 +18,43 @@ class DataDashRenderer:
         self.fps = 30  # Optimized for smooth rendering
         self.style = style
         
-        # Professional brand color schemes
+        # DataDash color schemes using Fortinet-inspired palette
         self.colors = {
-            "default": {
-                "primary": (45, 151, 255),      # Vibrant blue
-                "secondary": (30, 100, 200),    # Deeper blue
-                "accent": (200, 220, 255),      # Light blue
+            "cloud_blue": {
+                "primary": (48, 127, 226),      # Cloud Blue #307FE2
+                "secondary": (30, 90, 180),     # Deeper cloud blue
+                "accent": (200, 220, 255),      # Light blue accent
                 "white": (255, 255, 255),
-                "dark": (25, 35, 45),           # Dark blue-gray
-                "background": (0, 0, 0)
+                "dark": (20, 40, 80),           # Dark blue for depth
+                "background": (0, 0, 0)         # Black for solid background
             },
-            "minimal": {
-                "primary": (60, 70, 80),        # Sophisticated gray
-                "secondary": (40, 50, 60),      # Darker gray
-                "accent": (180, 190, 200),      # Light gray
+            "secure_red": {
+                "primary": (218, 41, 28),       # Secure Red #DA291C
+                "secondary": (160, 30, 20),     # Deeper secure red
+                "accent": (255, 180, 170),      # Light red accent
                 "white": (255, 255, 255),
-                "dark": (30, 35, 40),           # Charcoal
-                "background": (0, 0, 0)
+                "dark": (80, 15, 10),           # Dark red
+                "background": (0, 0, 0)         # Black background
             },
-            "corporate": {
-                "primary": (0, 84, 166),        # Professional blue
-                "secondary": (0, 56, 110),      # Navy blue
-                "accent": (120, 170, 220),      # Light corporate
+            "sase_purple": {
+                "primary": (144, 99, 205),      # SASE Purple #9063CD
+                "secondary": (100, 70, 150),    # Deeper purple
+                "accent": (200, 180, 230),      # Light purple accent
                 "white": (255, 255, 255),
-                "dark": (20, 30, 50),           # Dark navy
-                "background": (0, 0, 0)
+                "dark": (40, 30, 80),           # Dark purple
+                "background": (0, 0, 0)         # Black background
             },
-            "tech": {
-                "primary": (0, 230, 118),       # Bright tech green
-                "secondary": (0, 180, 90),      # Forest green
-                "accent": (150, 255, 200),      # Light mint
+            "connectivity_yellow": {
+                "primary": (255, 185, 0),       # Connectivity Yellow #FFB900
+                "secondary": (200, 145, 0),     # Deeper yellow
+                "accent": (255, 230, 150),      # Light yellow accent
                 "white": (255, 255, 255),
-                "dark": (15, 40, 25),           # Dark green
-                "background": (0, 0, 0)
+                "dark": (80, 60, 0),            # Dark yellow/brown
+                "background": (0, 0, 0)         # Black background
             }
         }
         
-        self.current_colors = self.colors.get(style, self.colors["default"])
+        self.current_colors = self.colors.get(style, self.colors["cloud_blue"])
         
     def ease_out_quart(self, t):
         """Smooth quartic ease-out for natural animation"""
@@ -83,7 +84,7 @@ class DataDashRenderer:
         
         return gradient
     
-    def create_professional_logo(self, size, colors, alpha, text="LT"):
+    def create_professional_logo(self, size, colors, alpha, text="DD"):
         """Create a professional logo with gradient background"""
         logo_img = Image.new('RGBA', (size * 2, size), (0, 0, 0, 0))
         

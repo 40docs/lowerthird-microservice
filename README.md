@@ -1,15 +1,24 @@
-# Lowerthird Microservice
+# DataDash Lowerthird Microservice
 
-A Flask-based microservice for generating customizable lowerthird graphics, following the 40docs microservice architecture pattern.
+A Flask-based microservice for generating professional DataDash-branded lowerthird graphics for community content about Fortinet and Forticloud technologies.
 
 ## Features
 
+- **Fortinet-Inspired Color Palette** - Uses secure red, cloud blue, sase purple, connectivity yellow
+- **DataDash Community Branding** - Perfect for Fortinet/Forticloud educational content
+- **Professional Animations** - Smooth quartic/sine easing for broadcast quality
+- **Multiple Style Options** - Different color schemes for varied content types
 - **RESTful API** for video generation
-- **Multiple brand styles** (default, minimal, corporate, tech)
-- **Customizable text** and duration
-- **Professional animations** with smooth easing
 - **Docker containerized** for easy deployment
-- **Health check** endpoint for orchestration
+
+## DataDash Color Palette (Fortinet-Inspired)
+
+| Color Name | RGB | Hex | Usage |
+|------------|-----|-----|-------|
+| **Cloud Blue** | RGB(48, 127, 226) | #307FE2 | Primary brand color |
+| **Secure Red** | RGB(218, 41, 28) | #DA291C | Alerts/emphasis |
+| **Connectivity Yellow** | RGB(255, 185, 0) | #FFB900 | Highlights/accents |
+| **SASE Purple** | RGB(144, 99, 205) | #9063CD | Technical content |
 
 ## API Endpoints
 
@@ -25,17 +34,17 @@ Response:
 }
 ```
 
-### Generate Lowerthird
+### Generate DataDash Lowerthird
 ```http
 POST /create-lowerthird
 Content-Type: application/json
 
 {
   "main_title": "DataDash",
-  "subtitle": "Short Tech Insights", 
-  "output_name": "my_lowerthird",
+  "subtitle": "Fortinet Security Deep Dive", 
+  "output_name": "episode_intro",
   "duration": 4.0,
-  "style": "default"
+  "style": "cloud_blue"
 }
 ```
 
@@ -43,17 +52,17 @@ Response:
 ```json
 {
   "status": "ok",
-  "video": "/app/outputs/my_lowerthird.mp4",
+  "video": "/app/outputs/episode_intro.mp4",
   "parameters": {
-    "main_title": "Your Brand",
-    "subtitle": "Short Tech Insights",
+    "main_title": "DataDash",
+    "subtitle": "Fortinet Security Deep Dive",
     "duration": 4.0,
-    "style": "default"
+    "style": "cloud_blue"
   }
 }
 ```
 
-### List Styles
+### List Available Styles
 ```http
 GET /styles
 ```
@@ -61,16 +70,36 @@ GET /styles
 Response:
 ```json
 {
-  "styles": ["default", "minimal", "corporate", "tech"]
+  "styles": [
+    "cloud_blue",
+    "secure_red", 
+    "sase_purple",
+    "connectivity_yellow"
+  ]
 }
 ```
 
-## Available Styles
+## Available DataDash Styles
 
-- **default**: Blue branding theme
-- **minimal**: Grayscale professional
-- **corporate**: Traditional blue corporate
-- **tech**: Modern green tech theme
+### cloud_blue
+- **Primary**: Cloud Blue (#307FE2)
+- **Secondary**: Deep Blue
+- **Best for**: General DataDash content, cloud security topics
+
+### secure_red
+- **Primary**: Secure Red (#DA291C)
+- **Secondary**: Deep Red
+- **Best for**: Security alerts, threat intelligence content
+
+### sase_purple
+- **Primary**: SASE Purple (#9063CD)
+- **Secondary**: Deep Purple
+- **Best for**: SASE, SD-WAN, technical deep dives
+
+### connectivity_yellow
+- **Primary**: Connectivity Yellow (#FFB900)
+- **Secondary**: Deep Yellow
+- **Best for**: Networking content, connectivity topics
 
 ## Docker Usage
 
