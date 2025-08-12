@@ -201,56 +201,108 @@ class DataDashRenderer:
         
         return logo_img
     
+    def create_premium_background(self, width, height, t, colors):
+        """Create animated premium tech background with subtle movement"""
+        bg = Image.new('RGBA', (width, height), (0, 0, 0, 0))
+        draw = ImageDraw.Draw(bg)
+        
+        # Animated gradient waves - very subtle for Apple cleanliness
+        if t > 0.1:  # Start subtle background animation
+            bg_alpha = min((t - 0.1) / 0.3, 0.05)  # Very subtle, max 5% opacity
+            
+            # Create flowing gradient lines
+            for i in range(3):
+                y_offset = int(100 * math.sin((t * 2 + i) * math.pi)) 
+                y_pos = self.height - 200 + y_offset + (i * 40)
+                
+                if 0 <= y_pos <= self.height:
+                    # Ultra-subtle gradient line
+                    line_color = (*colors["primary"], int(30 * bg_alpha))
+                    draw.ellipse([0, y_pos-20, width, y_pos+20], fill=line_color)
+        
+        # Premium edge glow that builds anticipation
+        if t < 0.8:
+            glow_progress = t / 0.8
+            glow_alpha = int(20 * glow_progress)
+            
+            # Left edge premium glow
+            for x in range(100):
+                alpha = int(glow_alpha * (100-x) / 100)
+                draw.rectangle([x, 0, x+1, height], fill=(*colors["primary"], alpha))
+        
+        return bg
+    
     def create_frame(self, frame_num, duration, main_title, subtitle):
-        """Create a professional lowerthird frame with gradients and shadows"""
+        """Create a premium tech reveal lowerthird with Apple-like smoothness"""
         total_frames = int(duration * self.fps)
         
-        # Base frame
+        # Base frame with premium background
         base = Image.new('RGB', (self.width, self.height), self.current_colors["background"])
+        
+        # Animation progress with premium timing
+        t = frame_num / total_frames
+        
+        # Add premium animated background
+        premium_bg = self.create_premium_background(self.width, self.height, t, self.current_colors)
+        base_rgba = base.convert('RGBA')
+        base_with_bg = Image.alpha_composite(base_rgba, premium_bg)
+        
         overlay = Image.new('RGBA', (self.width, self.height), (0, 0, 0, 0))
         draw = ImageDraw.Draw(overlay)
         
-        # Animation progress
-        t = frame_num / total_frames
-        
-        # Main bar animation (first 60% of duration)
-        bar_duration = 0.6
-        if t <= bar_duration:
-            bar_t = t / bar_duration
-            bar_progress = self.ease_in_out_sine(bar_t)
+        # Premium bar animation with Apple-like smoothness (delayed elegant reveal)
+        bar_start = 0.2  # Delayed start for premium feel
+        bar_duration = 0.5
+        if t > bar_start and t <= (bar_start + bar_duration):
+            bar_t = (t - bar_start) / bar_duration
+            # Custom premium easing - starts slow, elegant acceleration, smooth settle
+            bar_progress = self.ease_out_quart(bar_t)
             
-            # Animated gradient bar
-            bar_width = int(600 * bar_progress)
-            bar_x, bar_y, bar_height = 40, 830, 180
+            # Premium bar dimensions - more elegant proportions
+            bar_width = int(650 * bar_progress)
+            bar_x, bar_y, bar_height = 40, 820, 200
             
             if bar_width > 0:
-                # Create gradient bar
-                gradient_bar = self.create_gradient(bar_width, bar_height, 
-                                                  self.current_colors["primary"], 
-                                                  self.current_colors["secondary"])
+                # Multi-layered premium bar construction
                 
-                # Add rounded corners and shadow
-                bar_img = Image.new('RGBA', (bar_width, bar_height), (0, 0, 0, 0))
+                # Deep shadow layer for premium depth
+                deep_shadow = Image.new('RGBA', (bar_width + 16, bar_height + 16), (0, 0, 0, 0))
+                deep_shadow_draw = ImageDraw.Draw(deep_shadow)
+                deep_shadow_draw.rounded_rectangle([8, 8, bar_width + 8, bar_height + 8], 
+                                                 radius=20, fill=(0, 0, 0, 40))
                 
-                # Shadow layer
-                shadow_img = Image.new('RGBA', (bar_width + 8, bar_height + 8), (0, 0, 0, 0))
-                shadow_draw = ImageDraw.Draw(shadow_img)
-                shadow_draw.rounded_rectangle([4, 4, bar_width + 4, bar_height + 4], 
-                                            radius=15, fill=(*self.current_colors["dark"], 100))
+                # Medium shadow for layered depth
+                med_shadow = Image.new('RGBA', (bar_width + 8, bar_height + 8), (0, 0, 0, 0))
+                med_shadow_draw = ImageDraw.Draw(med_shadow)
+                med_shadow_draw.rounded_rectangle([4, 4, bar_width + 4, bar_height + 4], 
+                                                radius=18, fill=(0, 0, 0, 80))
                 
-                # Main bar with gradient
-                bar_rgba = gradient_bar.convert('RGBA')
+                # Premium gradient with more sophistication
+                premium_gradient = self.create_gradient(bar_width, bar_height,
+                                                      self.current_colors["primary"],
+                                                      self.current_colors["secondary"])
+                
+                # Glass overlay layer for premium Apple-like material
+                glass_overlay = Image.new('RGBA', (bar_width, bar_height), (255, 255, 255, 25))
+                
+                # Main bar with perfect rounded corners
+                bar_rgba = premium_gradient.convert('RGBA')
                 mask = Image.new('L', (bar_width, bar_height), 0)
                 mask_draw = ImageDraw.Draw(mask)
-                mask_draw.rounded_rectangle([0, 0, bar_width - 1, bar_height - 1], radius=12, fill=255)
+                mask_draw.rounded_rectangle([0, 0, bar_width - 1, bar_height - 1], radius=16, fill=255)
                 bar_rgba.putalpha(mask)
+                glass_overlay.putalpha(mask)
                 
-                # Composite shadow and bar
-                shadow_img.paste(bar_rgba, (0, 0), bar_rgba)
-                overlay.paste(shadow_img, (bar_x - 4, bar_y - 4), shadow_img)
+                # Composite all layers for premium depth
+                overlay.paste(deep_shadow, (bar_x - 8, bar_y - 8), deep_shadow)
+                overlay.paste(med_shadow, (bar_x - 4, bar_y - 4), med_shadow)
+                overlay.paste(bar_rgba, (bar_x, bar_y), bar_rgba)
+                overlay.paste(glass_overlay, (bar_x, bar_y), glass_overlay)
                 
-                # Add accent line on top
-                accent_img = Image.new('RGBA', (bar_width, 4), (*self.current_colors["accent"], 200))
+                # Premium accent highlight - thinner and more sophisticated
+                highlight_height = 3
+                accent_img = Image.new('RGBA', (bar_width, highlight_height), 
+                                     (*self.current_colors["accent"], int(180 * bar_progress)))
                 overlay.paste(accent_img, (bar_x, bar_y), accent_img)
         
         # Load fonts with better sizing
@@ -261,58 +313,144 @@ class DataDashRenderer:
             title_font = ImageFont.load_default()
             subtitle_font = ImageFont.load_default()
         
-        # Logo animation (starts at 15% duration)
-        logo_start = 0.15
+        # Premium logo animation with elegant materialization
+        logo_start = 0.4  # Starts after bar is mostly revealed
+        logo_duration = 0.4
         if t > logo_start:
-            logo_t = min((t - logo_start) / 0.4, 1.0)
-            logo_alpha = self.ease_out_quart(logo_t)
+            logo_t = min((t - logo_start) / logo_duration, 1.0)
             
-            professional_logo = self.create_professional_logo(70, self.current_colors, logo_alpha)
-            overlay.paste(professional_logo, (60, 845), professional_logo)
+            # Elegant emergence with multiple phases
+            if logo_t < 0.3:
+                # Phase 1: Subtle glow appears first
+                glow_alpha = self.ease_in_out_sine(logo_t / 0.3) * 0.3
+                logo_size = 75
+                glow_size = int(logo_size * 1.2)
+                
+                # Create glow halo
+                glow_img = Image.new('RGBA', (glow_size * 2, glow_size), (0, 0, 0, 0))
+                glow_draw = ImageDraw.Draw(glow_img)
+                glow_draw.ellipse([glow_size//4, glow_size//4, glow_size*1.75, glow_size*0.75], 
+                                fill=(*self.current_colors["primary"], int(60 * glow_alpha)))
+                glow_blurred = glow_img.filter(ImageFilter.GaussianBlur(radius=15))
+                overlay.paste(glow_blurred, (50, 835), glow_blurred)
+                
+            elif logo_t < 0.7:
+                # Phase 2: Logo materializes with scale
+                material_t = (logo_t - 0.3) / 0.4
+                scale_progress = self.ease_out_quart(material_t)
+                logo_alpha = scale_progress
+                
+                # Slight scale animation for premium feel
+                base_size = 75
+                current_size = int(base_size * (0.8 + 0.2 * scale_progress))
+                
+                professional_logo = self.create_professional_logo(current_size, self.current_colors, logo_alpha)
+                logo_x = 60 - int((current_size - base_size) * 0.5)
+                logo_y = 845 - int((current_size - base_size) * 0.3)
+                overlay.paste(professional_logo, (logo_x, logo_y), professional_logo)
+                
+            else:
+                # Phase 3: Final settle with full opacity
+                settle_t = (logo_t - 0.7) / 0.3
+                final_alpha = 0.8 + 0.2 * self.ease_out_quart(settle_t)
+                
+                professional_logo = self.create_professional_logo(75, self.current_colors, final_alpha)
+                overlay.paste(professional_logo, (60, 845), professional_logo)
         
-        # Title animation with shadow (starts at 25% duration)
-        title_start = 0.25
+        # Premium title animation with elegant character-by-character reveal
+        title_start = 0.6  # Starts after logo materialization
+        title_duration = 0.5
         if t > title_start:
-            title_t = min((t - title_start) / 0.35, 1.0)
-            title_alpha = self.ease_out_quart(title_t)
+            title_t = min((t - title_start) / title_duration, 1.0)
             
-            # Text positioning
-            title_x, title_y = 220, 845
+            # Calculate how many characters to reveal
+            title_length = len(main_title)
+            chars_to_show = int(title_length * self.ease_out_quart(title_t))
+            visible_title = main_title[:chars_to_show]
             
-            # Shadow effect
-            shadow_color = (*self.current_colors["dark"], int(150 * title_alpha))
-            draw.text((title_x + 3, title_y + 3), main_title, font=title_font, fill=shadow_color)
+            # Position with better spacing for premium look
+            title_x, title_y = 230, 835
             
-            # Main title with gradient effect simulation
-            title_color = (*self.current_colors["white"], int(255 * title_alpha))
-            draw.text((title_x, title_y), main_title, font=title_font, fill=title_color)
+            if visible_title:
+                # Premium shadow with multiple layers for depth
+                for i, offset in enumerate([(4, 4), (2, 2)]):
+                    shadow_alpha = int((80 - i*20) * title_t)
+                    shadow_color = (*self.current_colors["dark"], shadow_alpha)
+                    draw.text((title_x + offset[0], title_y + offset[1]), visible_title, 
+                             font=title_font, fill=shadow_color)
+                
+                # Main title with premium white
+                title_alpha = min(title_t * 1.2, 1.0)  # Slightly faster alpha ramp
+                title_color = (*self.current_colors["white"], int(255 * title_alpha))
+                draw.text((title_x, title_y), visible_title, font=title_font, fill=title_color)
+                
+                # Add subtle glow to current character being revealed
+                if chars_to_show < title_length and chars_to_show > 0:
+                    current_char = main_title[chars_to_show-1:chars_to_show]
+                    try:
+                        # Get position of current character
+                        prev_text = main_title[:chars_to_show-1]
+                        prev_bbox = draw.textbbox((0, 0), prev_text, font=title_font)
+                        char_x = title_x + (prev_bbox[2] - prev_bbox[0])
+                        
+                        # Subtle glow on revealing character
+                        glow_color = (*self.current_colors["primary"], int(60 * title_t))
+                        for glow_offset in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                            draw.text((char_x + glow_offset[0], title_y + glow_offset[1]), 
+                                     current_char, font=title_font, fill=glow_color)
+                    except:
+                        pass
         
-        # Subtitle animation with shadow (starts at 40% duration)
-        subtitle_start = 0.4
+        # Premium subtitle with word-by-word reveal
+        subtitle_start = 0.8  # Starts near end of title reveal
+        subtitle_duration = 0.4
         if t > subtitle_start:
-            subtitle_t = min((t - subtitle_start) / 0.35, 1.0)
-            subtitle_alpha = self.ease_out_quart(subtitle_t)
+            subtitle_t = min((t - subtitle_start) / subtitle_duration, 1.0)
             
-            # Text positioning
-            subtitle_x, subtitle_y = 220, 900
+            # Word-by-word reveal for sophistication
+            words = subtitle.split()
+            words_to_show = int(len(words) * self.ease_out_quart(subtitle_t))
+            visible_subtitle = " ".join(words[:words_to_show])
             
-            # Shadow effect
-            shadow_color = (*self.current_colors["dark"], int(120 * subtitle_alpha))
-            draw.text((subtitle_x + 2, subtitle_y + 2), subtitle, font=subtitle_font, fill=shadow_color)
+            # Position with elegant spacing
+            subtitle_x, subtitle_y = 230, 890
             
-            # Main subtitle
-            subtitle_color = (*self.current_colors["accent"], int(255 * subtitle_alpha))
-            draw.text((subtitle_x, subtitle_y), subtitle, font=subtitle_font, fill=subtitle_color)
+            if visible_subtitle:
+                # Elegant shadow
+                shadow_alpha = int(100 * subtitle_t)
+                shadow_color = (*self.current_colors["dark"], shadow_alpha)
+                draw.text((subtitle_x + 2, subtitle_y + 2), visible_subtitle, 
+                         font=subtitle_font, fill=shadow_color)
+                
+                # Main subtitle with accent color
+                subtitle_alpha = min(subtitle_t * 1.3, 1.0)
+                subtitle_color = (*self.current_colors["accent"], int(240 * subtitle_alpha))
+                draw.text((subtitle_x, subtitle_y), visible_subtitle, 
+                         font=subtitle_font, fill=subtitle_color)
         
-        # Add subtle glow effect around text area
-        if t > 0.3:
-            glow_alpha = min((t - 0.3) / 0.3, 0.3)
-            glow_img = Image.new('RGBA', (580, 120), (*self.current_colors["primary"], int(30 * glow_alpha)))
-            blur_glow = glow_img.filter(ImageFilter.GaussianBlur(radius=15))
-            overlay.paste(blur_glow, (200, 835), blur_glow)
+        # Premium ambient glow that builds throughout animation
+        if t > 0.5:
+            glow_alpha = min((t - 0.5) / 0.4, 0.2)  # More subtle for Apple cleanliness
+            
+            # Create sophisticated glow area
+            glow_width, glow_height = 700, 140
+            glow_img = Image.new('RGBA', (glow_width, glow_height), (0, 0, 0, 0))
+            glow_draw = ImageDraw.Draw(glow_img)
+            
+            # Multi-layer glow for premium depth
+            center_x, center_y = glow_width // 2, glow_height // 2
+            for radius in [60, 40, 20]:
+                alpha = int(20 * glow_alpha * (60 - radius) / 40)
+                glow_draw.ellipse([center_x - radius, center_y - radius, 
+                                 center_x + radius, center_y + radius],
+                                fill=(*self.current_colors["primary"], alpha))
+            
+            # Apply sophisticated blur
+            premium_glow = glow_img.filter(ImageFilter.GaussianBlur(radius=25))
+            overlay.paste(premium_glow, (190, 815), premium_glow)
         
-        # Composite and return
-        final_img = Image.alpha_composite(base.convert('RGBA'), overlay).convert('RGB')
+        # Final composition with premium background
+        final_img = Image.alpha_composite(base_with_bg, overlay).convert('RGB')
         return cv2.cvtColor(np.array(final_img), cv2.COLOR_RGB2BGR)
 
 def generate_lowerthird(main_title, subtitle, output_name, duration=4.0, style="default"):
